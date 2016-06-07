@@ -5,7 +5,7 @@ import {
   beforeEachProviders,
   expect
 } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import { AppComponent } from './forms.component';
 describe('App', () => {
   beforeEachProviders(() => [
     AppComponent
