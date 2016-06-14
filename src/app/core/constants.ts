@@ -8,8 +8,8 @@ export namespace Constants {
 
 
 	export enum FormStatus {
-		DRAFT,
-		PUBLISHED
+		DRAFT = 0,
+		PUBLISHED = 1
 	}
 
 	export enum FormFieldMode {

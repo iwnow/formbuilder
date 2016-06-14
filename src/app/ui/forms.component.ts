@@ -1,12 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Http } from '@angular/http';
 import { RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
+import { Title } from '@angular/platform-browser';
 import {AppFormBuilder} from './builder.component';
 import {AppFormPreview} from './preview.component';
+import {FormServices} from '../core/services';
 import '../../../public/css/reset.css';
 import '../../../public/css/blueprint/screen.css';
+//import '../../../public/favicon.ico';
 
 @Component({
-  selector: 'my-app',
+  selector: 'app',
   template: `
 	<main>
 		<div>{{title}}</div>
@@ -18,7 +22,8 @@ import '../../../public/css/blueprint/screen.css';
 	</main>
 `,
   styles: [require('./forms.component.css')],
-	directives: [ROUTER_DIRECTIVES]
+	directives: [ROUTER_DIRECTIVES],
+	providers: [FormServices]
 })
 @RouteConfig([{
 	name: 'Preview',
@@ -29,6 +34,18 @@ import '../../../public/css/blueprint/screen.css';
 	path: '/builder',
 	component: AppFormBuilder
 }])
-export class AppComponent { 
-	title = 'Router demo';
+export class AppComponent implements OnInit { 
+	constructor(
+			private _titleService: Title,
+			private _formServices: FormServices
+		) { }
+
+	ngOnInit() {
+		this._titleService.setTitle('Welcome to Form Builder'); 
+		this._formServices.getForms().subscribe(forms => {
+				console.log(forms);
+		}, err => {
+				console.error(err);
+		});
+	}
 }
