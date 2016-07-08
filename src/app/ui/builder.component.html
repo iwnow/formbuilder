@@ -1,0 +1,60 @@
+<div class="form-page-container prepend-top span-26">
+		<div class="left-column span-4">              
+			partial
+		</div>
+	<div class="center-column span-14">
+			<div class="inner-container">
+			<formsSubMenuPartial [model]="_model"></formsSubMenuPartial>
+				<br /><br />
+				<ul class="horizontal-list title-list">
+					<li class="form-info title-info">
+						<h2 class="form-editable form-title" data-sub-channel="sub-title-0">{{_model.Title}}</h2>                        
+					</li>                
+				</ul>
+				<div id="message" class="clear"></div>
+				<!--@Html.WriteMessages()-->
+			</div>
+			<div class="form-area">            
+				<ul id="drop-form" class="vertical-list edit-form drop-form-list entry-form-list">
+				<span *ngIf="_model.Fields?.length > 0" >
+				
+					<li *ngFor="let fieldf of _model.Fields" id="drop-item-@field.DomId" class="drop-item ui-droppable" data-dom-id="@field.DomId" data-control-type="@field.FieldType.ToString().ToLower()">
+						@Html.Partial("_form-field-{0}-partial".FormatWith(field.FieldType.ToString().ToLower()), field)  
+					</li>
+				</span>
+				<span *ngIf="!(_model.Fields?.length > 0)" >
+					<li class="prompt-item">
+					<div class="add-fields-prompt rounded-5 shadow-2">
+					Drag Form Fields from the left side-bar into this space to begin building your form
+					</div>
+					<br /><br />
+					</li>
+				</span>
+				</ul>
+				<ul id="submit-button-list" class="vertical-list entry-form-list">
+				<li>
+					<label class="label">&nbsp;</label>
+					<div class="input">
+					<input type="submit" value="Save Changes" class="save-button blue"  />
+					<br /><br />
+					</div>
+				</li>
+				</ul>
+			</div>
+		</div>
+		<div class="right-column span-7 last">
+		@Html.Tip("Active fields on your form can be edited in the box below.","tip wide-tip")<br />
+		<div id="form-property-container">
+			@Html.Partial("_form-property-editor-partial")
+		</div>
+		<div id="field-property-container" class="hide">
+		@Html.Partial("_form-field-property-editor-partial")
+		</div>
+		
+		</div>       
+		@Html.HiddenFor(m => m.Id)
+		@Html.Hidden("IsAutoSave", "false");
+		<input type="hidden" id="isAltered" value="0" /> 
+		@*dummy field below to prevent null value for update action dicationary param*@
+		<input id="fieldid-prop" type="hidden" name="Fields[-1].Id"  value=""/>     
+</div>

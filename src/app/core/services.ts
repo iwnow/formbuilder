@@ -1,7 +1,8 @@
 import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { Observable }     from 'rxjs/Observable';
-import {FormCollectionViewModel} from '../viewModel/formCollectionViewModel';
+import {FormCollectionViewModel} from '../viewModel';
+import {Store} from './store';
 
 @Injectable()
 export class FormServices {
@@ -16,6 +17,7 @@ export class FormServices {
 			.post(this.formsUrl, '')
 			.map(res => {
 				let data = res.json();
+				Store.formsList = data;
 				return data;
 			})
 			.catch(this.handleError);

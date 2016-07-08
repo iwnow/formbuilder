@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Http } from '@angular/http';
-import { RouteConfig, ROUTER_DIRECTIVES, Router } from '@angular/router-deprecated';
+import { provideRouter, RouterConfig, ROUTER_DIRECTIVES, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import {AppFormBuilder} from './builder.component';
 import {AppFormPreview} from './preview.component';
-import {FormServices} from '../core/services';
+import {FormServices, Store} from '../core';
 import * as models from '../viewModel';
 import '../../../public/css/reset.css';
 import '../../../public/css/blueprint/screen.css';
@@ -18,8 +18,7 @@ import '../../../public/css/form-builder/forms-sprites.css';
 @Component({
   selector: 'forms',
   template: `
-  <div id="page-body">
-	<div *ngIf="!anyForms" class="select-form-container align-center welcome-container">
+  <div *ngIf="!anyForms" class="select-form-container align-center welcome-container">
        <img src="../../../public/images/spacer.gif" class="image-bg form-icon" alt="form icon" /><br />
        <h3 class="welcome-text">Welcome to the E-digit form builder version 1.2. You have not yet created any forms. Click the button below to begin</h3>
        <a href="#form-create" class="hyperlink-button light-blue-button welcome-button">Create Form</a>
@@ -32,7 +31,7 @@ import '../../../public/css/form-builder/forms-sprites.css';
       form, or manage existing forms from the table below.
     </div>
     <div class="add-form-button-container">        
-		<a href="#form-create" class="hyperlink-button black-button">Add Form</a>
+		<a href="javascript:void(0)" (click)="onCreateForm()" class="hyperlink-button black-button">Add Form</a>
     </div>
     <table class="main-table">
     <thead>
@@ -48,9 +47,9 @@ import '../../../public/css/form-builder/forms-sprites.css';
 				<span class="date">{{dateFormat(f.DateAdded) | date}}</span>
 			</td>       
 			<td>       
-				<a href="javascript:void(0)" (click)="onEditForm(f.Id)" class="hyperlink-button light-blue-button">Edit Form</a>
-				<a href="javascript:void(0)" (click)="onPreviewForm(f.Id)" class="hyperlink-button green-button">View/Fill Form</a>
-				<a href="javascript:void(0)" (click)="onSubmissionForm(f.Id)" class="hyperlink-button orange-button">View Submissions</a>
+				<a href="javascript:void(0)" (click)="onEditForm(f)" class="hyperlink-button light-blue-button">Edit Form</a>
+				<a href="javascript:void(0)" (click)="onPreviewForm(f)" class="hyperlink-button green-button">View/Fill Form</a>
+				<a href="javascript:void(0)" (click)="onSubmissionForm(f)" class="hyperlink-button orange-button">View Submissions</a>
 				&nbsp;
 				<a *ngIf="!(f.Fields.length > 0)" href="javascript:void(0)" 
 						(click)="onDeleteForm(f.Id)"
@@ -61,7 +60,6 @@ import '../../../public/css/form-builder/forms-sprites.css';
     </table>
 	</div>
     </div>
-	</div>
 	`,
   providers: [FormServices]
 })
@@ -85,35 +83,37 @@ export class FormsComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this._titleService.setTitle('Welcome to Form Builder'); 
+		this._titleService.setTitle('Welcome to Form Builder - Drag N\' Drop FormBuilder'); 
 		this._formServices.getForms().subscribe(forms => {
 				this._formsList = forms;
-				this.log(this._formsList);
 		}, err => {
 				this.log(err);
 		});
 	}
+	// href="#form-create"
+	onCreateForm() {
+		//this._router.navigate(['Builder']);
+	}
 
-	onDeleteForm(id:number) {
+	onDeleteForm(m: models.FormViewModel) {
 		if (confirm('Are you sure you want to delete this form?')) {
-			this.log(id);
+			this.log(m.Id);
 		}
 	}
 
-	onEditForm(id:number) {
+	onEditForm(m: models.FormViewModel) {
 		//#form-edit
-		this.log(id);		
+		this._router.navigate(['builder', m.Id]);		
 	}
 	
-	onPreviewForm(id:number) {
+	onPreviewForm(m: models.FormViewModel) {
 		//#form-preview
-		this.log(id);		
-		this._router.navigate(['Preview', {id: id}]);
+		this.log(m.Id);		
+		this._router.navigate(['preview', m.Id]);
 	}
 	
-	onSubmissionForm(id:number) {
-		//#form-entries
-		this.log(id);		
+	onSubmissionForm(m: models.FormViewModel) {
+		//#form-entries	
 	}
 
 	dateFormat(d: string):any {
@@ -129,6 +129,21 @@ export class FormsComponent implements OnInit {
 	}
 }
 
+const routes: RouterConfig = [{
+	path: 'preview/:id',
+	component: AppFormPreview
+}, {
+	path: 'builder/:id',
+	component: AppFormBuilder
+}, {
+	path: '',
+	component: FormsComponent
+}];
+
+export const APP_ROUTER_PROVIDERS = [
+  provideRouter(routes)
+];
+
 @Component({
   selector: 'app',
   template: `
@@ -139,22 +154,6 @@ export class FormsComponent implements OnInit {
   styles: [require('./forms.component.css')],
 	directives: [ROUTER_DIRECTIVES]
 })
-@RouteConfig([{
-	name: 'Preview',
-	path: '/preview/:id',
-	component: AppFormPreview
-}, {
-	name: 'Builder',
-	path: '/builder',
-	component: AppFormBuilder
-}, {
-	name: 'Forms',
-	path: '/forms',
-	component: FormsComponent,
-	useAsDefault: true
-}, { 
-	path: '/**', 
-	redirectTo: ['Forms'] 
-}])
+
 export class AppComponent { }
 
